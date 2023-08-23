@@ -8,18 +8,26 @@ d3.json(queryUrl).then(function (data) {
 
 // Function to determine marker size.
 function markerSize(magnitude) {
-  return magnitude * 2000;
+  return magnitude * 4;
 }
 
 // Function to determine marker color by depth.
 function chooseColor(depth) {
-  if (depth < 10) return "lightgreen";
-  else if (depth < 30) return "greenyellow";
-  else if (depth < 50) return "yellow";
-  else if (depth < 70) return "orange";
-  else if (depth < 90) return "orangered";
-  else return "red";
+  if (depth > 90) return "red";
+  else if (depth > 70) return "orangered";
+  else if (depth > 50) return "orange";
+  else if (depth > 30) return "yellow";
+  else if (depth > 10) return "greenyellow";
+  else return "#90EE90";
 }
+
+ // Create the map, giving it the base and earthquakes layers to display.
+ var myMap = L.map("map", {
+  center: [37.09, -95.71],
+  zoom: 4
+  // layers: [base, earthquakes],
+});
+
 
 // Function to create map.
 function createMap(earthquakesData) {
@@ -42,22 +50,25 @@ function createMap(earthquakesData) {
       };
       return L.circleMarker(latlng, markers);
     },
-  });
+  })
+  .addTo(myMap);
+
 
   // Create the base layer.
   var base = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
     attribution:
       '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-    maxZoom: 18,
-    zoomOffset: -1,
-  });
+    // maxZoom: 18,
+    // zoomOffset: -1,
+  })
+  .addTo(myMap);
 
-  // Create the map, giving it the base and earthquakes layers to display.
-  var myMap = L.map("map", {
-    center: [37.09, -95.71],
-    zoom: 5,
-    layers: [base, earthquakes],
-  });
+  // // Create the map, giving it the base and earthquakes layers to display.
+  // var myMap = L.map("map", {
+  //   center: [37.09, -95.71],
+  //   zoom: 5
+  //   // layers: [base, earthquakes],
+  // });
 
   // Add legend.
   var legend = L.control({ position: "bottomright" });
@@ -66,12 +77,13 @@ function createMap(earthquakesData) {
     var div = L.DomUtil.create("div", "info legend");
     var depth = [10, 30, 50, 70, 90];
     var labels = [];
+    var colors = ["#90EE90", "greenyellow", "yellow", "orange", "orangered", "red"];
     div.innerHTML += "<h4>Magnitude Level</h4>";
 
     for (var i = 0; i < depth.length; i++) {
       div.innerHTML +=
         '<i style="background:' +
-        chooseColor(depth[i] + 1) +
+        colors[i] +
         '"></i> ' +
         depth[i] +
         (depth[i + 1] ? "&ndash;" + depth[i + 1] + "<br>" : "+");
